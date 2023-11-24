@@ -1,0 +1,1795 @@
+<html>
+            <head>
+                <style>/* Copyright 2022-2023 Morum LLC, 2019-2022 Smart Chain Arena LLC */
+
+:root {
+  --primary: #006dcc;
+  --primary-text-color: #212529;
+
+  --background-color: #fafafa;
+  --link-color: #01608c;
+  --button-hover-color: #e8e8e8;
+  --menu-bg-color: #f1f1f1;
+  --border-color: #d3d3d3;
+
+  --output-bgok: #f1f1fa;
+  --output-bgko: #faf1f1;
+
+  --danger-color: #dc3545;
+  --dataColumn-color: #290075;
+  --simulationBuilder-bg-color: #fffdeb;
+  --tabcontentshow-bg-color: #ccffcc;
+
+  --key-address-color: #006600;
+  --timestamp-color: #6600aa;
+  --code-type-color: #331188;
+  --code-variable-color: #aa0000;
+  --code-store-color: #0000aa;
+  --code-constant-color: #000088;
+  --code-cons-color: #0000aa;
+  --code-comment-color: #006600;
+
+  --button-bg-color: #006dcc;
+  --button-font-color: #fff;
+
+  /* Wallet colors */
+  --applied-op-color: #e8ffc2;
+  --failed-op-color: #ffcfbf;
+}
+
+button.editor-menu-btn:not([disabled]):hover {
+  color: var(--primary-text-color);
+  background-color: var(--background-color);
+}
+
+button.editor-menu-btn:disabled,
+button.editor-menu-btn:disabled:hover {
+  opacity: 0.5;
+  cursor: default;
+  background-color: initial;
+  text-decoration: none;
+}
+
+#outputPanel.empty-output {
+  background: rgba(255, 255, 255, 0.9) url(../smartPY.only.transp.png)
+    center/40% no-repeat;
+  background-blend-mode: color;
+}
+
+#logo-image {
+  background: url(../smartPY_horizon.transp.png) left/75% no-repeat;
+}
+
+#editor-link {
+  background-image: url(../svgs/terminal.svg);
+}
+
+#wallet-link {
+  background-image: url(../svgs/wallet-dark.svg);
+}
+
+#faucet-link {
+  background-image: url(../svgs/faucet.svg);
+}
+
+#explorer-link {
+  background-image: url(../svgs/search.svg);
+}
+
+#node_explorer-link {
+  background-image: url(../svgs/search.svg);
+}
+
+#michelson-link {
+  background-image: url(../svgs/stream.svg);
+}
+
+#help-link {
+  background-image: url(../svgs/question.svg);
+}
+
+#origination-link {
+  background-image: url(../svgs/stream.svg);
+}
+
+#ledger-img {
+  background-image: url(../svgs/ledger-dark.svg);
+  background-repeat: no-repeat;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --primary: #006dcc;
+    --primary-text-color: #fafafa;
+
+    --background-color: #212529;
+    --link-color: #66aacc;
+    --button-hover-color: slategray;
+    --menu-bg-color: #05385c;
+    --border-color: #d3d3d3;
+
+    --output-bgok: #05364a;
+    --output-bgko: #4a3605;
+
+    --danger-color: #dc3545;
+    --dataColumn-color: blanchedalmond;
+    --simulationBuilder-bg-color: #444488;
+    --tabcontentshow-bg-color: darkgreen;
+
+    --key-address-color: chocolate;
+    --timestamp-color: aqua;
+    --code-type-color: magenta;
+    --code-variable-color: khaki;
+    --code-store-color: greenyellow;
+    --code-constant-color: red;
+    --code-cons-color: hotpink;
+    --code-comment-color: chocolate;
+
+    --button-bg-color: #fff;
+    --button-font-color: #000;
+  }
+
+  button.editor-menu-btn:not([disabled]):hover {
+    color: var(--background-color);
+    background-color: #e8e8e8;
+  }
+
+  .right-submenu button,
+  .pretty-submenu button {
+    background-color: var(--primary-text-color);
+  }
+
+  #outputPanel.empty-output {
+    background: rgba(30, 30, 30, 0.8) url(../logo-transp.png)
+      center/40% no-repeat;
+    background-blend-mode: color;
+  }
+
+  #logo-image {
+    background: url(../dm-logo.png) left/75% no-repeat;
+  }
+
+  .modal-content {
+    background-color: var(--menu-bg-color);
+  }
+
+  /** Dark mode header icons*/
+  #editor-link {
+    background-image: url(../svgs/dm-terminal.svg);
+  }
+
+  #wallet-link {
+    background-image: url(../svgs/wallet-dark.svg);
+  }
+
+  #faucet-link {
+    background-image: url(../svgs/dm-faucet.svg);
+  }
+
+  #explorer-link {
+    background-image: url(../svgs/dm-search.svg);
+  }
+
+  #node_explorer-link {
+    background-image: url(../svgs/dm-search.svg);
+  }
+
+  #michelson-link {
+    background-image: url(../svgs/dm-stream.svg);
+  }
+
+  #help-link {
+    background-image: url(../svgs/dm-question.svg);
+  }
+
+  #origination-link {
+    background-image: url(../svgs/dm-stream.svg);
+  }
+}
+
+body,
+html {
+  height: 100%;
+  padding: 0;
+  margin: 0;
+  color: var(--primary-text-color);
+}
+
+body {
+  background-color: var(--background-color);
+}
+
+main {
+  height: 100%;
+  display: grid;
+  grid-template-columns: 1fr 20px 1fr;
+  grid-template-rows: max-content max-content minmax(1px, 1fr);
+  grid-template-areas:
+    'menu menu menu'
+    'submenu submenu submenu'
+    'editorDiv centerCol outputPanel';
+}
+
+button {
+  border-radius: 3px;
+  background-color: inherit;
+  border-width: 1px;
+  border-style: solid;
+  border-color: rgb(216, 216, 216) rgb(209, 209, 209)
+    rgb(186, 186, 186);
+  color: inherit;
+}
+
+button[onclick]:hover,
+button[data-toggle]:hover {
+  cursor: pointer;
+  background-color: var(--button-hover-color);
+}
+
+button.text-button {
+  border: none;
+  background-color: inherit;
+  color: var(--link-color);
+  text-align: left;
+  padding-left: 0;
+  padding-right: 0;
+}
+
+button.text-button:hover {
+  text-decoration: underline;
+  box-shadow: none;
+  font-weight: bold;
+}
+
+button.text-button:active,
+button.text-button:focus {
+  outline: none;
+  font-weight: bold;
+}
+
+/** Main Nav **/
+header {
+  position: fixed;
+  width: 100%;
+  background-color: var(--background-color);
+  top: 0;
+  z-index: 99999999999;
+}
+
+header .navbar-toggler {
+  background-color: #fafafa; /** Note: same color in both light and dark mode */
+}
+
+.top-bar {
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 1px solid var(--menu-bg-color);
+}
+
+.logo {
+  margin: 0.6em;
+}
+
+.logo img,
+.logo div {
+  height: 42px;
+}
+
+.logo a:hover {
+  background-color: inherit !important;
+}
+
+.logo p {
+  margin: -10px 0 0 40px;
+  font-variant: small-caps;
+  font-family: Verdana, sans-serif;
+}
+
+#mainNav .container {
+  display: flex;
+  justify-content: flex-end;
+  padding-right: 0;
+}
+
+#mainNav .row {
+  margin: 0 0 3px 0;
+}
+
+.nav-icon {
+  height: 14px !important;
+}
+
+.nav-item {
+  margin: 0 2px;
+}
+
+.nav-link {
+  padding: 0.25rem 1rem;
+}
+
+.nav-link {
+  color: inherit !important;
+  opacity: 0.5;
+}
+
+.active {
+  border-bottom: 2px solid var(--primary-text-color);
+  opacity: 1;
+}
+
+.nav-link > div {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+}
+
+.nav-link span {
+  padding-right: 0.33rem;
+}
+
+.nav-icon {
+  height: 14px;
+  width: 14px;
+  display: inline-flex;
+  background-position: bottom;
+  background-repeat: no-repeat;
+  background-size: 14px;
+}
+
+/** End Main nav **/
+
+/** Editor menus **/
+
+.editor-nav {
+  padding: 3px;
+}
+
+.editor-nav .dropdown {
+  margin: 0 2px;
+}
+
+.dropdown-item.active,
+.dropdown-item:active {
+  background-color: var(--primary);
+}
+
+.dropdown-menu li {
+  margin-bottom: 0;
+}
+
+button.editor-menu-btn {
+  border: none;
+  min-width: 4.1rem;
+  color: inherit;
+}
+
+button.editor-menu-btn:hover {
+  text-decoration: underline;
+}
+
+.submenu {
+  grid-area: submenu;
+  border: 1px solid var(--border-color);
+  background-color: var(--menu-bg-color);
+  padding: 2px 3px 3px 3px;
+  margin: 0px;
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.editor-nav > button {
+  margin: 0px 2px;
+}
+
+.with-key-commands {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.spacer {
+  width: 8rem;
+}
+
+.right-submenu button,
+.pretty-submenu button {
+  margin: 0px 0.25rem;
+  display: flex;
+  align-items: center;
+}
+
+.right-submenu,
+.pretty-submenu {
+  display: inline-flex;
+  margin: 0 3px;
+}
+
+.right-submenu {
+  padding-left: 0rem;
+}
+
+.pretty-submenu button span {
+  margin-left: 0.25rem;
+}
+
+#dynamicButtons > button {
+  padding-bottom: 4px;
+}
+/** End Editor Menu **/
+
+/** Editor layout **/
+main,
+#help,
+#explorer,
+#node_explorer,
+#faucet,
+#origination,
+#faq,
+#wallet {
+  padding-top: 76px;
+}
+
+main.layout-side-by-side {
+  grid-template-columns: 1fr 20px 1fr;
+}
+
+main.layout-output-only {
+  grid-template-columns: 0 0 1fr;
+}
+
+main.layout-editor-only {
+  grid-template-columns: 1fr 0 0;
+}
+
+main.layout-stacked {
+  display: flex;
+  flex-direction: column;
+  overflow-y: scroll;
+}
+
+main.layout-side-by-side #outputPanel,
+main.layout-output-only #outputPanel {
+  display: block;
+}
+
+main.layout-editor-only #outputPanel {
+  display: none;
+}
+
+main.layout-stacked #outputPanel,
+main.layout-stacked #editorDiv {
+  height: 50%;
+  display: block;
+}
+
+/** End Editor layout **/
+
+#editorDiv {
+  grid-area: editorDiv;
+  display: inline-block;
+}
+
+#centerCol {
+  grid-area: centerCol;
+  display: inline-block;
+  background-color: var(--menu-bg-color);
+  margin: 5px;
+  padding: 0;
+}
+
+#outputPanel {
+  grid-area: outputPanel;
+  overflow: scroll;
+  margin: 0px;
+  padding: 5px;
+  background-size: 40%;
+  background-blend-mode: color;
+}
+
+#outputPanel.empty-output span {
+  opacity: 0.5;
+}
+
+.operation {
+  padding: 0.5rem;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+#outputPanel .contract {
+  padding: 0.5rem;
+}
+
+#outputPanel .execMessage {
+  padding: 0.5rem;
+}
+
+#outputPanel .contract,
+#outputPanel .execMessage {
+  overflow-x: auto;
+}
+
+.menu {
+  grid-area: menu;
+  overflow: hidden;
+  border: none;
+  background-color: var(--menu-bg-color);
+  padding: 10px 10px;
+  margin: 0px;
+}
+
+.menu a {
+  padding: 1px 10px;
+}
+
+#help,
+#explorer,
+#node_explorer,
+#faucet,
+#origination,
+#faq,
+#wallet {
+  margin: 1rem 2rem;
+}
+
+/** Overwrite bootstrap modal lg max width **/
+.modal-lg {
+  max-width: 900px;
+}
+
+/** Overwrite bootstrap .close button color to work in dark mode **/
+.close {
+  color: var(--primary-text-color);
+}
+
+.selection {
+  margin-left: 0px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  margin-right: 2px;
+  height: 30px;
+  min-width: 100px;
+}
+
+.radio_selection {
+  margin: 2px;
+  height: 12px;
+  width: 20px;
+}
+
+div.hidden {
+  display: none;
+}
+
+div#terms {
+  width: 80%;
+  max-height: 60%;
+}
+
+div.on {
+  margin-left: 20px;
+  white-space: nowrap;
+}
+
+td.data {
+  margin-left: 20px;
+  padding-left: 20px;
+}
+
+input {
+  width: 200px;
+  height: 30px;
+  font-size: 12px;
+  margin: 2px;
+}
+
+.no-margin-list li {
+  margin: 0;
+}
+
+td.dataColumn {
+  margin-left: 20px;
+  padding-left: 20px;
+  color: var(--dataColumn-color);
+}
+
+div.simulationBuilder {
+  border: 2px solid var(--border-color);
+  padding-left: 5px;
+  margin-bottom: 20px;
+}
+
+.steps {
+  border: 2px solid var(--border-color);
+  margin-left: 10px;
+  margin-bottom: 10px;
+  padding: 2px;
+}
+
+#outputPanel > div {
+  border: 1px solid var(--border-color);
+}
+
+.contract,
+.execMessageOK {
+  background-color: var(--output-bgok);
+}
+
+.execMessageKO {
+  background-color: var(--output-bgko);
+}
+
+/* div.python {
+    border-left: 3px solid #aaaaaa;
+    background-color: #ffeeee;
+}
+*/
+
+/* .michelson {
+    background-color: var(--output-bg);
+} */
+
+pre {
+  color: inherit;
+}
+
+input.smallCheck {
+  margin: 0px;
+  padding: 0px;
+  width: 15px;
+}
+
+textarea.smallMultilineArea {
+  width: 100%;
+  height: 400px;
+  font-size: 15px;
+  font-family: monospace;
+}
+
+#shareLink,
+#loadLink {
+  width: 100%;
+  height: 300px;
+  resize: vertical;
+  font-size: 15px;
+  font-family: monospace;
+}
+
+.resize_both {
+  resize: both;
+}
+
+div.michelsonLine {
+  padding-left: 2em;
+  text-indent: -2em;
+}
+
+.white-space-pre,
+.white-space-pre-wrap {
+  font-family: monospace;
+  white-space: pre;
+  overflow-x: scroll;
+}
+
+.white-space-pre-wrap {
+  white-space: pre-wrap;
+}
+
+div.message {
+  border-left: 1px solid var(--border-color);
+  background-color: #fafad2;
+}
+/* div.messageBox {
+    float : left;
+    background-color: #dddddd;
+    padding : 3px;
+    margin-right:5px;
+} */
+
+/* div.event {
+    border-left: 1px solid #aaaaaa;
+    background-color: #f6e1ff;
+} */
+/* div.eventBox {
+    float : left;
+    background-color: #dddddd;
+    padding : 3px;
+    margin-right:5px;
+} */
+
+/* div.scenario {
+    background-color: #fdd598;
+    padding-left : 30px;
+    margin-right:15px;
+} */
+
+/* div.scenario1 {
+    background-color: #fdd598;
+    padding-left : 10px;
+    margin-right:15px;
+    border-left: 2px solid #444444;
+    margin-left: 10px;
+}
+
+div.scenario2 {
+    background-color: #d5fd98;
+    padding-left : 10px;
+    margin-right:15px;
+    border-left: 2px solid #444444;
+    margin-left: 10px;
+}
+
+div.scenario3 {
+    background-color: #fd98d5;
+    padding-left : 10px;
+    margin-right:15px;
+    border-left: 2px solid #444444;
+    margin-left: 10px;
+} */
+
+div.error {
+  border-left: 1px solid #aaaaaa;
+  background-color: var(--output-bgko);
+}
+
+div.effect {
+  border: 1px solid #cccccc;
+  padding: 3px;
+}
+
+div.effectBox {
+  float: left;
+  background-color: #dddddd;
+  padding: 3px;
+}
+
+div.transition {
+  border-left: 3px solid #cccccc;
+  background-color: #eeeeee;
+  padding: 5px;
+}
+
+div.reset {
+  clear: both;
+}
+
+div.subtype {
+  margin-left: 1px;
+  padding: 5px;
+  border: 1px solid #eeeeee;
+  border-top-left-radius: 5px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-bottom-left-radius: 5px;
+}
+
+div.indent5 {
+  padding-left: 0ex;
+}
+
+a {
+  color: var(--link-color);
+  background-color: inherit;
+  text-decoration: none;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  transition: 0.3s;
+  margin: 0px;
+}
+
+a[href]:hover {
+  background-color: var(--button-hover-color);
+  color: var(--primary-text-color);
+}
+
+a.active {
+  font-weight: bold;
+}
+
+a:not([href]):not([tabindex]):focus,
+a:not([href]):not([tabindex]):hover {
+  cursor: default;
+}
+
+/* Mozilla-specific padding fix */
+@-moz-document url-prefix() {
+  .submenu {
+    padding-top: 3px;
+    margin-bottom: 1px;
+  }
+}
+
+.execMessageAlice {
+  margin-right: 10%;
+}
+
+.execMessageBob {
+  margin-left: 10%;
+}
+
+.form-header {
+  border: 1px solid var(--border-color);
+  background-color: var(--menu-bg-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 20px;
+  font-family: monospace;
+  border-radius: 0.3rem 0.3rem 0 0;
+  padding: 0.3rem;
+}
+
+.form-body {
+  border: 1px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 80px;
+  font-family: monospace;
+  padding: 0 0.3rem 0.3rem 0.3rem;
+  margin-block-end: 0;
+}
+
+.form-error {
+  border: 1px solid var(--border-color);
+  background-color: var(--danger-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 10px;
+  font-family: monospace;
+  border-radius: 0 0 0.3rem 0.3rem;
+  padding: 0.2rem;
+  margin-bottom: 0.3rem;
+}
+
+.form-footer {
+  border: 1px solid var(--border-color);
+  background-color: var(--menu-bg-color);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  min-height: 20px;
+  font-family: monospace;
+  border-radius: 0 0 0.3rem 0.3rem;
+  padding: 0.3rem;
+  padding-right: 50px;
+}
+
+.tab {
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  background-color: var(--menu-bg-color);
+}
+
+/* Style the buttons that are used to open the tab content */
+.tab .title {
+  float: left;
+  padding: 10px;
+}
+
+.tab button {
+  background-color: inherit;
+  float: left;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 7px 10px;
+  transition: 0.3s;
+  opacity: 0.6;
+  margin: 3px;
+}
+
+button.button {
+  background-color: var(--button-bg-color);
+  border: none;
+  outline: none;
+  cursor: pointer;
+  padding: 5px 10px;
+  transition: 0.3s;
+  opacity: 0.7;
+  color: var(--button-font-color);
+  margin: 2px;
+}
+
+button.button:hover {
+  background-color: var(--button-bg-color);
+  opacity: 1;
+}
+
+.tab button:hover,
+.tab button.active {
+  background-color: var(--button-hover-color);
+  opacity: 1;
+}
+
+/* Style the tab content */
+.tabs {
+  margin-bottom: 1rem;
+  border: 1px solid var(--border-color);
+}
+.tabcontentalways {
+  padding: 6px 12px;
+  border-top: none;
+}
+.tabcontent {
+  padding: 6px 12px;
+  border-top: none;
+}
+.tabcontentshow {
+  background-color: tabcontenshow-bg-color;
+  display: block;
+  padding: 6px 12px;
+  border: 1px solid #cccccc;
+  border-top: none;
+}
+
+.explorer_button {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.node_explorer_button {
+  margin-top: 5px;
+  margin-bottom: 5px;
+}
+
+.explorer_button,
+.node_explorer_button,
+.centertextbutton {
+  text-decoration: none;
+  color: var(--link-color);
+  background-color: inherit;
+  border: 1px solid var(--link-color);
+  margin-right: 5px;
+  margin-left: 5px;
+  border-radius: 5px;
+  line-height: 1.1rem;
+  height: 30px;
+  vertical-align: middle;
+}
+
+.extramarginbottom {
+  margin-bottom: 5px;
+}
+
+.centertextbutton[onclick]:hover {
+  background-color: #f1f1f1; /** intentionally always the same color */
+  cursor: pointer;
+}
+
+.centertextbutton:not([onclick]):hover {
+  cursor: default;
+}
+input[type='checkbox']:hover {
+  cursor: pointer;
+}
+
+input[type='checkbox'] {
+  margin-top: 2px;
+  height: 20px;
+  width: 20px;
+}
+
+input[type='text'] {
+  margin: 2px;
+}
+
+#storageDiv {
+}
+
+#storageDivInternal {
+  overflow: auto;
+  max-height: 500px;
+  padding-bottom: 10px;
+}
+
+#storageAddressesDiv {
+  overflow: auto;
+  max-height: 400px;
+}
+
+.recordList {
+  border-collapse: collapse;
+  margin: 2px;
+}
+
+.recordList th {
+  color: #880000;
+  border-collapse: collapse;
+}
+
+.recordList td {
+  padding: 1px;
+  border: 1px solid var(--primary-text-color);
+  border-style: solid;
+  vertical-align: top;
+  padding: 5px;
+}
+
+.bytes {
+  margin: 2px;
+  max-width: 120px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--code-store-color);
+  text-overflow: ellipsis;
+  font-family: monospace;
+}
+
+.key {
+  margin: 2px;
+  width: 120px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--key-address-color);
+  text-overflow: ellipsis;
+  font-family: monospace;
+}
+
+.signature {
+  margin: 2px;
+  width: 120px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  color: #44aaaa;
+  text-overflow: ellipsis;
+  font-family: monospace;
+}
+
+.address {
+  margin: 2px;
+  width: 120px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--key-address-color);
+  text-overflow: ellipsis;
+  font-family: monospace;
+}
+
+.timestamp {
+  margin: 2px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  color: var(--timestamp-color);
+  text-overflow: ellipsis;
+  font-family: monospace;
+}
+
+.mutez {
+  margin: 2px;
+  display: inline-block;
+  overflow: hidden;
+  white-space: nowrap;
+  color: #66aa00;
+  text-overflow: ellipsis;
+  font-family: monospace;
+}
+
+#contractId {
+  width: 300px;
+  font-family: monospace;
+}
+
+#accountId {
+  width: 300px;
+  font-family: monospace;
+}
+
+#providerId {
+  width: 300px;
+  font-family: monospace;
+}
+
+.preview {
+  min-height: 100px;
+  overflow: scroll;
+  border: 1px solid black;
+  font-family: monospace;
+  border-radius: 0.3rem;
+  padding: 0.3rem;
+}
+
+.protocolBox {
+  border: 1px solid #ccc;
+  padding: 2px;
+  margin-top: 2px;
+  margin-bottom: 2px;
+  border-radius: 5px;
+}
+
+.input-error {
+  color: var(--danger-color);
+  text-align: center;
+}
+
+.load-contract {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 2px;
+}
+
+.load-contract button {
+  margin: 0.3rem 0;
+  padding: 0.3rem 0.5rem;
+  align-self: flex-start;
+}
+
+@media (max-width: 568px) {
+  #help,
+  #explorer,
+  #node_explorer,
+  #faucet,
+  #origination,
+  #faq,
+  #wallet {
+    margin: 1rem 0.5rem;
+  }
+  .right-submenu {
+    padding-left: 0.5rem;
+    border-left: none;
+  }
+  .spacer {
+    width: 5rem;
+  }
+}
+
+span.fieldName {
+  display: inline-block;
+  color: #444488;
+  min-width: 100px;
+}
+
+/**
+    * Code Highlighting
+    **/
+span.channel {
+  color: #8888ff;
+}
+
+span.type {
+  color: var(--code-type-color);
+}
+
+span.partialType {
+  color: #ff4444;
+}
+
+span.variable {
+  color: var(--code-variable-color);
+}
+
+span.store {
+  color: var(--code-store-color);
+}
+
+span.param {
+  color: #888800;
+}
+
+span.variable {
+  color: #008800;
+}
+
+span.keyword {
+  color: #bb4488;
+}
+
+span.conditions {
+  color: #55aa55;
+}
+
+span.constant {
+  color: var(--code-constant-color);
+}
+
+span.cons {
+  color: #0000aa;
+}
+
+span.record {
+  color: #4288aa;
+}
+
+span.conditions span {
+  color: #55aa55;
+}
+
+span.gas {
+  color: orange;
+}
+
+span.analysis {
+  color: orange;
+}
+
+span.self {
+  color: #0099aa;
+}
+
+span.comment {
+  color: var(--code-comment-color);
+}
+
+span.stack {
+  color: #0088aa;
+}
+
+span.ctt {
+  color: lightblue;
+}
+
+code,
+span.command {
+  background-color: hsla(0, 0%, 0%, 0.04);
+  color: #444488;
+}
+
+/* Ledger */
+.ledger-icon {
+  height: 20px;
+  margin-top: 5px;
+  background-repeat: no-repeat;
+}
+
+/* Wallet Styles */
+.applied-op-bg {
+  background-color: var(--applied-op-color);
+}
+
+.failed-op-bg {
+  background-color: var(--failed-op-color);
+}
+
+.inputSection {
+  display: flex;
+  justify-content: space-between;
+  align-content: space-between;
+  align-items: center;
+  width: 300px;
+}
+
+select {
+  font-size: 16px;
+  font-family: sans-serif;
+  color: #444;
+  line-height: 1.3;
+  padding: 0.3em 2em 0.2em 0.8em;
+  box-sizing: border-box;
+  margin: 5px;
+  border: 1px solid #aaa;
+  box-shadow: 0 1px 0 1px rgba(0, 0, 0, 0.04);
+  border-radius: 0.5em;
+  -moz-appearance: none;
+  -webkit-appearance: none;
+  appearance: none;
+  background-color: #fff;
+  background-image: url('data:image/svg+xml;charset=US-ASCII,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23007CB2%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E'),
+    linear-gradient(to bottom, #ffffff 0%, #e5e5e5 100%);
+  background-repeat: no-repeat, repeat;
+  /* arrow icon position (1em from the right, 50% vertical) , then gradient position*/
+  background-position: right 0.7em top 50%, 0 0;
+  /* icon size, then gradient */
+  background-size: 0.65em auto, 100%;
+}
+.select::-ms-expand {
+  display: none;
+}
+.select:hover {
+  border-color: #888;
+}
+.select:focus {
+  border-color: #aaa;
+  box-shadow: 0 0 1px 3px rgba(59, 153, 252, 0.7);
+  box-shadow: 0 0 0 3px -moz-mac-focusring;
+  color: #222;
+  outline: none;
+}
+.select option {
+  font-weight: normal;
+}
+.select:disabled:hover,
+select[aria-disabled='true'] {
+  border-color: #aaa;
+}
+
+.loader {
+  border: 16px solid #f3f3f3;
+  border-radius: 50%;
+  border-top: 16px solid #3498db;
+  width: 120px;
+  height: 120px;
+  -webkit-animation: spin 2s linear infinite; /* Safari */
+  animation: spin 2s linear infinite;
+  margin: auto;
+  margin-bottom: 20px;
+}
+
+/* Beacon & Temple Styles */
+.flexRow {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  align-content: center;
+  background-color: var(--button-hover-color);
+  padding: 10px;
+}
+
+/* Safari */
+@-webkit-keyframes spin {
+  0% {
+    -webkit-transform: rotate(0deg);
+  }
+  100% {
+    -webkit-transform: rotate(360deg);
+  }
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/lato/v16/S6uyw4BMUTPHjxAwXiWtFCfQ7A.woff2)
+    format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+/* latin-ext */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: url(https://fonts.gstatic.com/s/lato/v16/S6u9w4BMUTPHh6UVSwaPGQ3q5d0N7w.woff2)
+    format('woff2');
+  unicode-range: U+0100-024F, U+0259, U+1E00-1EFF, U+2020, U+20A0-20AB,
+    U+20AD-20CF, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+/* latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: url(https://fonts.gstatic.com/s/lato/v16/S6uyw4BMUTPHjx4wXiWtFCc.woff2)
+    format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+/* latin */
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: url(https://fonts.gstatic.com/s/lato/v16/S6u9w4BMUTPHh6UVSwiPGQ3q5d0.woff2)
+    format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6,
+    U+02DA, U+02DC, U+2000-206F, U+2074, U+20AC, U+2122, U+2191,
+    U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+html,
+body {
+  font-size: 16px;
+  font-family: Lato, sans-serif;
+  font-weight: 400;
+}
+
+h1,
+h2,
+h3,
+h4,
+p,
+li {
+  margin-left: 0;
+  margin-right: 0;
+  margin-top: 0;
+  padding-bottom: 0;
+  padding-left: 0;
+  padding-right: 0;
+  padding-top: 0;
+}
+
+li {
+  margin-bottom: 0.5rem;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  /* color: hsla(0, 0%, 0%, 0.8); */
+  font-family: Lato, sans-serif;
+  font-weight: 700;
+  text-rendering: optimizeLegibility;
+}
+
+h1 {
+  font-size: 2rem;
+  line-height: 2.415rem;
+}
+
+h2 {
+  font-size: 1.51572rem;
+  line-height: 2.415rem;
+}
+
+h3 {
+  font-size: 1.31951rem;
+  line-height: 1.61rem;
+}
+
+h4 {
+  font-size: 1rem;
+}
+
+td.pad10 {
+  padding-left: 10px;
+  padding-right: 10px;
+}
+
+td.code_right {
+  text-align: right;
+  font-family: monospace;
+}
+
+code,
+span.command {
+  font-size: 0.88rem;
+  line-height: 1.61rem;
+
+  border-radius: 3px;
+  font-family: monospace;
+  padding: 0;
+  padding-top: 0.2em;
+  padding-bottom: 0.2em;
+}
+
+.page-title {
+  text-align: center;
+  margin: 1rem 0 2.5rem 0;
+}
+
+/**
+  * Output Typography
+  **/
+#outputPanel .execMessage *,
+#outputPanel .tabcontent *,
+#types {
+  font-size: 0.9375rem;
+  line-height: 1.1em;
+}
+
+#outputPanel .execMessage h1,
+#outputPanel .tabcontent h1 {
+  font-size: 1.5rem;
+  font-weight: normal;
+  margin-bottom: 0;
+}
+
+#outputPanel .execMessage h2,
+#outputPanel .tabcontent h2 {
+  font-size: 1.3rem;
+  font-weight: normal;
+  margin-bottom: 0.2em;
+}
+
+#outputPanel .execMessage h3,
+#outputPanel .tabcontent h3 {
+  font-size: 1.1rem;
+  font-weight: normal;
+  margin-bottom: 0.2em;
+}
+
+#outputPanel .execMessage h4,
+#outputPanel .tabcontent h4 {
+  font-size: 1rem;
+  font-weight: normal;
+  margin-bottom: 0.2em;
+}
+
+#types .type,
+#outputPanel .type,
+.python,
+#outputPanel .python,
+.michelson,
+#outputPanel .michelson,
+#outputPanel .on {
+  font-family: monospace;
+  font-size: 0.9375rem;
+}
+
+.dataColumn,
+.code {
+  font-family: monospace;
+}
+</style>
+                <script>// Copyright 2022-2023 Morum LLC, 2019-2022 Smart Chain Arena LLC
+
+function copyMichelson(x) {
+  var range = document.createRange();
+  var children = x.parentNode.parentNode.childNodes;
+  children.forEach(function (child) {
+    if (child.nodeType != Node.TEXT_NODE) {
+      if (child.className.includes('michelson')) {
+        range.selectNode(child);
+        console.log(child);
+        window.getSelection().removeAllRanges();
+        window.getSelection().addRange(range);
+        document.execCommand('copy');
+      }
+    }
+  });
+}
+
+function openTabLazy(evt, id, global_id) {
+  var i, tabcontent, tablinks;
+
+  tabcontent = evt.currentTarget.parentNode.parentNode.childNodes;
+  for (i = 0; i < tabcontent.length; i++) {
+    if (tabcontent[i].className == 'tabcontent')
+      tabcontent[i].style.display = 'none';
+  }
+  tablinks = evt.currentTarget.parentNode.childNodes;
+  for (i = 0; i < tablinks.length; i++) {
+    if (tablinks[i].nodeType != Node.TEXT_NODE) {
+      tablinks[i].className = tablinks[i].className.replace(
+        ' active',
+        ''
+      );
+    }
+  }
+  tablinks = evt.currentTarget.parentNode.parentNode.childNodes;
+  k = 0;
+  for (i = 0; i < tablinks.length; i++) {
+    if (tablinks[i].nodeType != Node.TEXT_NODE) {
+      if (id + 1 == k) {
+        tablinks[i].style.display = 'block';
+        lazy_tab = window.smartmlCtx.call_exn_handler(
+          'lazy_tab',
+          id,
+          global_id
+        );
+        if (lazy_tab) tablinks[i].innerHTML = lazy_tab;
+      }
+      k += 1;
+    }
+  }
+
+  evt.currentTarget.className += ' active';
+}
+
+function openTab(evt, name) {
+  var i, tabcontent, tablinks;
+
+  tabcontent = evt.currentTarget.parentNode.parentNode.childNodes;
+  for (i = 0; i < tabcontent.length; i++) {
+    if (tabcontent[i].className == 'tabcontent')
+      tabcontent[i].style.display = 'none';
+  }
+  tablinks = evt.currentTarget.parentNode.childNodes;
+  for (i = 0; i < tablinks.length; i++) {
+    if (tablinks[i].nodeType != Node.TEXT_NODE) {
+      tablinks[i].className = tablinks[i].className.replace(
+        ' active',
+        ''
+      );
+    }
+  }
+  tablinks = evt.currentTarget.parentNode.parentNode.childNodes;
+  k = 0;
+  for (i = 0; i < tablinks.length; i++) {
+    if (tablinks[i].nodeType != Node.TEXT_NODE) {
+      if (name + 1 == k) tablinks[i].style.display = 'block';
+      k += 1;
+    }
+  }
+
+  evt.currentTarget.className += ' active';
+}
+
+class SmartmlCtx {
+  constructor() {}
+  call(f, ...rest) {
+    try {
+      return exports[f](...rest);
+    } catch (error) {
+      var result = 0;
+      try {
+        result = this.call('stringOfException', true, error);
+      } catch (_error) {
+        throw error;
+      }
+      if (
+        typeof window.toException === 'function' &&
+        !window.location.pathname.includes('ts-ide')
+      )
+        throw toException(result);
+      else throw result;
+    }
+  }
+  call_exn(f, ...rest) {
+    return exports[f](...rest);
+  }
+  call_exn_handler(f, ...rest) {
+    try {
+      return exports[f](...rest);
+    } catch (error) {
+      try {
+        var result = '';
+        try {
+          result = this.call('stringOfException', false, error);
+        } catch (_error) {
+          showErrorPre(error);
+        }
+        console.log(result);
+        showErrorPre(result);
+      } catch (_error) {
+        showErrorPre(error);
+      }
+    }
+  }
+}
+
+smartmlCtx = new SmartmlCtx();
+in_browser = true;
+</script>
+            </head>
+            <body>
+                <div id="outputPanel"><div class="jss35"><div>
+<div class="tabs"><div class="tab"><span class="title">Contract</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">SmartPy</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Types</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 2);">Deploy Michelson Contract</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 3);">×</button></div><div class="tabcontent" style="display: block;"><div class="contract"><h3>New contract: <span class="address">KT1TezoooozzSmartPyzzSTATiCzzzwwBFA1</span></h3><h3>Balance: 0.000000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></h3>
+<h3>Storage:</h3>
+<div id="storageDivInternal"><table class="recordList"><tbody><tr><td class="dataColumn">Admin</td>
+<td class="dataColumn">Donations</td>
+<td class="dataColumn">Fundraising_goal</td>
+<td class="dataColumn">Notifications</td>
+<td class="dataColumn">Progress</td>
+<td class="dataColumn">TotalDonations</td></tr><tr><td class="data"><span class="address">KT1...</span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Value</td></tr></tbody></table></td><td class="data"><span class="token">0.100000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Message</td>
+<td class="dataColumn">Time</td></tr></tbody></table></td><td class="data"><input type="text" value="0" readonly=""></td><td class="data"><span class="token">0.000000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></div>
+<h3>Code:</h3>
+import smartpy as sp
+<br>
+<br>class Contract(sp.Contract):
+<br><div class="on"><span class="keyword">def</span> __init__(self)<span class="keyword">:</span><div class="indent5">&nbsp;&nbsp;self.init_type(sp.TRecord(admin = sp.TAddress, donations = sp.TBigMap(sp.TAddress, sp.TMutez), fundraising_goal = sp.TMutez, notifications = sp.TBigMap(sp.TAddress, sp.TRecord(message = sp.TString, time = sp.TTimestamp).layout(("message", "time"))), progress = sp.TNat, totalDonations = sp.TMutez).layout((("admin", ("donations", "fundraising_goal")), ("notifications", ("progress", "totalDonations")))))</div>
+<div class="indent5">&nbsp;&nbsp;self.init(<span class="variable">admin</span> = sp.address('KT1...'),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">donations</span> = {},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">fundraising_goal</span> = sp.mutez(100000),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">notifications</span> = {},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">progress</span> = 0,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">totalDonations</span> = sp.tez(0))</div></div><br>
+<br><div class="on">
+  @sp.entrypoint
+<br><span class="keyword">def</span> donate(<span class="self">self</span>)<span class="keyword">:</span><br><div class="indent5">&nbsp;&nbsp;sp.verify(sp.amount &gt; sp.mul(sp.set_type_expr(<span class="constant">0</span>, sp.TNat), <span class="constant">sp.mutez(1)</span>), <span class="constant">'Donation amount must be greater than 0'</span>)
+<br>&nbsp;&nbsp;sp.send(<span class="self">self</span>.data.admin, sp.amount)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.totalDonations += sp.amount
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.donations[sp.sender] = sp.amount
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.notifications[sp.sender] = sp.record(message = <span class="constant">'Thank you for your donation!'</span>, time = <span class="constant">sp.timestamp(1700810317)</span>)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.notifications = <span class="self">self</span>.data.notifications
+<br>&nbsp;&nbsp;sp.verify(<span class="self">self</span>.data.totalDonations &lt;= <span class="self">self</span>.data.fundraising_goal, <span class="constant">'Fundraising goal achieved.'</span>)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.progress = (sp.fst(sp.ediv(<span class="self">self</span>.data.totalDonations, <span class="constant">sp.mutez(1)</span>).open_some(message = <span class="constant">sp.unit</span>)) * <span class="constant">100</span>) // sp.fst(sp.ediv(<span class="self">self</span>.data.fundraising_goal, <span class="constant">sp.mutez(1)</span>).open_some(message = <span class="constant">sp.unit</span>))</div></div>
+<br><div class="on">
+  @sp.entrypoint
+<br><span class="keyword">def</span> withdraw(<span class="self">self</span>)<span class="keyword">:</span><br><div class="indent5">&nbsp;&nbsp;sp.verify(sp.sender == <span class="self">self</span>.data.admin, <span class="constant">'Only the admin can withdraw funds'</span>)
+<br>&nbsp;&nbsp;sp.verify(<span class="self">self</span>.data.totalDonations &gt; <span class="constant">sp.tez(0)</span>, <span class="constant">'No funds available for withdrawal'</span>)
+<br>&nbsp;&nbsp;sp.verify(<span class="self">self</span>.data.totalDonations &gt;= sp.balance, <span class="constant">'Insufficient contract balance'</span>)
+<br>&nbsp;&nbsp;sp.send(<span class="self">self</span>.data.admin, <span class="self">self</span>.data.totalDonations)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.totalDonations = <span class="constant">sp.tez(0)</span>
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.notifications[sp.sender] = sp.record(message = <span class="constant">'Funds successfully withdrawn!'</span>, time = <span class="constant">sp.timestamp(1700810317)</span>)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.notifications = <span class="self">self</span>.data.notifications</div></div>
+<br>
+<br>sp.add_compilation_target("test", Contract())</div><button class="text-button" onclick="showLine(56)">(line 56)</button></div><div class="tabcontent" style="display: none;"><div class="contract"><h3>Storage:</h3><span class="type"><span class="record">{</span><br>&nbsp;&nbsp;<span class="record">admin</span>: sp.TAddress;<br>&nbsp;&nbsp;<span class="record">donations</span>: sp.TBigMap(sp.TAddress, sp.TMutez);<br>&nbsp;&nbsp;<span class="record">fundraising_goal</span>: sp.TMutez;<br>&nbsp;&nbsp;<span class="record">notifications</span>: sp.TBigMap(sp.TAddress, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="record">{</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="record">message</span>: sp.TString;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="record">time</span>: sp.TTimestamp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="record">}.layout(("message", "time"))</span>);<br>&nbsp;&nbsp;<span class="record">progress</span>: sp.TNat;<br>&nbsp;&nbsp;<span class="record">totalDonations</span>: sp.TMutez;<br><span class="record">}.layout((("admin", ("donations", "fundraising_goal")), ("notifications", ("progress", "totalDonations"))))</span></span><p></p><h3>Entry points:</h3><span class="type"><span class="variant">| donate</span><br><span class="variant">| withdraw</span></span></div></div><div class="tabcontent" style="display: none;"><button class="centertextbutton extramarginbottom" onclick="smartpyContext.gotoOrigination(contractSizes0_1.innerHTML, storageCode0_1.innerText, contractCode0_1.innerText, storageCodeJson0_1.innerText, contractCodeJson0_1.innerText,storageCode0_1.innerHTML, contractCode0_1.innerHTML, storageCodeJson0_1.innerHTML, contractCodeJson0_1.innerHTML)">Deploy Michelson Contract</button><div class="tabs"><div class="tab"><span class="title">Generated Michelson:</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTabLazy(event, 0, 0);">Sizes</button><button name="button_generatedMichelson" class="tablinks" onclick="openTabLazy(event, 1, 0);">Storage</button><button name="button_generatedMichelson" class="tablinks" onclick="openTabLazy(event, 2, 0);">Code</button><button name="button_generatedMichelson" class="tablinks" onclick="openTabLazy(event, 3, 0);">Storage JSON</button><button name="button_generatedMichelson" class="tablinks" onclick="openTabLazy(event, 4, 0);">Code JSON</button></div><div class="tabcontent" style="display: block;"><div><h2>Sizes</h2><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="contractSizes0_1" class="michelson white-space-pre"><table><tbody><tr><td class="pad10"><span class="item">Storage: </span></td><td class="pad10"><div class="progress" style="height: 20px; width: 150px;"><div class="progress-bar" style="width:0;" role="progressbar" 10'=""></div></div></td><td class="pad10, code_right">39 Bytes</td></tr><tr><td class="pad10"><span class="item">Big map originations (2): </span></td><td class="pad10"><div class="progress" style="height: 20px; width: 150px;"><div class="progress-bar" style="width:0;" role="progressbar" 10'=""></div></div></td><td class="pad10, code_right">64 Bytes</td></tr><tr><td class="pad10"><span class="item">Code: </span></td><td class="pad10"><div class="progress" style="height: 20px; width: 150px;"><div class="progress-bar" style="width:6;" role="progressbar" 10'=""></div></div></td><td class="pad10, code_right">1034 Bytes</td></tr><tr><td class="pad10"><span class="item">Combined: </span></td><td class="pad10"><div class="progress" style="height: 20px; width: 150px;"><div class="progress-bar" style="width:6;" role="progressbar" 10'=""></div></div></td><td class="pad10, code_right">1137 Bytes</td></tr></tbody></table></div></div></div><div class="tabcontent" style="display: none;"><div><h2>Initial Storage</h2><div><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="storageCode0_1" class="michelson white-space-pre-wrap">(Pair (Pair "KT1..." (Pair {} 100000)) (Pair {} (Pair 0 0)))</div></div></div></div><div class="tabcontent" style="display: none;"><div><h2>Michelson Code</h2><div><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="contractCode0_1" class="michelson white-space-pre">parameter (or (unit %donate) (unit %withdraw));<br>storage &nbsp;&nbsp;(pair (pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal))) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))));<br><div class="michelsonLine">code<br>&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;UNPAIR;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@parameter : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;IF_LEFT<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DROP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># == donate ==</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(sp.amount &gt; sp.mul(sp.set_type_expr(0, sp.TNat), sp.mutez(1)), 'Donation amount must be greater than 0')</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 1; <span class="comment">#</span> <span class="stack">mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH nat 0; <span class="comment">#</span> <span class="stack">nat : mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MUL;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AMOUNT;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@amount : mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "Donation amount must be greater than 0"; <span class="comment">#</span> <span class="stack">string : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.send(self.data.admin, sp.amount)</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NIL operation; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal)) : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTRACT unit; <span class="comment">#</span> <span class="stack">option (contract unit) : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH int 26; <span class="comment">#</span> <span class="stack">int : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}; <span class="comment">#</span> <span class="stack">@some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AMOUNT;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@amount : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNIT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">unit : @amount : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRANSFER_TOKENS; <span class="comment">#</span> <span class="stack">operation : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONS;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.totalDonations += sp.amount</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AMOUNT;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@amount : mutez : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADD;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 6;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.donations[sp.sender] = sp.amount</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNPAIR;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal)) : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNPAIR;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : pair (big_map %donations address mutez) (mutez %fundraising_goal) : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (big_map %donations address mutez) (mutez %fundraising_goal) : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNPAIR;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AMOUNT;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@amount : big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SOME;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">option mutez : big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDER;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@sender : option mutez : big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PAIR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (big_map address mutez) mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : pair (big_map address mutez) mutez : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PAIR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair address (pair (big_map address mutez) mutez) : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PAIR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.notifications[sp.sender] = sp.record(message = 'Thank you for your donation!', time = sp.timestamp(1700810317))</span> <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair (string %message) (timestamp %time)) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH (option (pair string timestamp)) (Some (Pair "Thank you for your donation!" "2023-11-24T07:18:37Z")); <span class="comment">#</span> <span class="stack">option (pair string timestamp) : big_map address (pair (string %message) (timestamp %time)) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDER;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@sender : option (pair string timestamp) : big_map address (pair (string %message) (timestamp %time)) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair string timestamp) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 3;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.notifications = self.data.notifications</span> <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair (string %message) (timestamp %time)) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 3;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(self.data.totalDonations &lt;= self.data.fundraising_goal, 'Fundraising goal achieved.')</span> <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair address (pair (big_map address mutez) mutez) : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LE;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "Fundraising goal achieved."; <span class="comment">#</span> <span class="stack">string : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.progress = (sp.fst(sp.ediv(self.data.totalDonations, sp.mutez(1)).open_some(message = sp.unit)) * 100) // sp.fst(sp.ediv(self.data.fundraising_goal, sp.mutez(1)).open_some(message = sp.unit))</span> <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 1; <span class="comment">#</span> <span class="stack">mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair address (pair (big_map address mutez) mutez) : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">option (pair nat mutez) : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNIT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">unit : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}; <span class="comment">#</span> <span class="stack">@some : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH nat 100; <span class="comment">#</span> <span class="stack">nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 1; <span class="comment">#</span> <span class="stack">mutez : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : mutez : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : mutez : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">option (pair nat mutez) : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNIT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">unit : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}; <span class="comment">#</span> <span class="stack">@some : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MUL;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">option (pair nat nat) : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH int 21; <span class="comment">#</span> <span class="stack">int : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DIG 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : nat : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 5;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DROP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># == withdraw ==</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(sp.sender == self.data.admin, 'Only the admin can withdraw funds')</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal)) : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDER;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@sender : address : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EQ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "Only the admin can withdraw funds"; <span class="comment">#</span> <span class="stack">string : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(self.data.totalDonations &gt; sp.tez(0), 'No funds available for withdrawal')</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 0; <span class="comment">#</span> <span class="stack">mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "No funds available for withdrawal"; <span class="comment">#</span> <span class="stack">string : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(self.data.totalDonations &gt;= sp.balance, 'Insufficient contract balance')</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BALANCE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@balance : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @balance : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @balance : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GE;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "Insufficient contract balance"; <span class="comment">#</span> <span class="stack">string : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.send(self.data.admin, self.data.totalDonations)</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NIL operation; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal)) : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTRACT unit; <span class="comment">#</span> <span class="stack">option (contract unit) : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH int 39; <span class="comment">#</span> <span class="stack">int : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}; <span class="comment">#</span> <span class="stack">@some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNIT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">unit : mutez : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRANSFER_TOKENS; <span class="comment">#</span> <span class="stack">operation : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONS;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.totalDonations = sp.tez(0)</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 0; <span class="comment">#</span> <span class="stack">mutez : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 6;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.notifications[sp.sender] = sp.record(message = 'Funds successfully withdrawn!', time = sp.timestamp(1700810317))</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair (string %message) (timestamp %time)) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH (option (pair string timestamp)) (Some (Pair "Funds successfully withdrawn!" "2023-11-24T07:18:37Z")); <span class="comment">#</span> <span class="stack">option (pair string timestamp) : big_map address (pair (string %message) (timestamp %time)) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDER;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@sender : option (pair string timestamp) : big_map address (pair (string %message) (timestamp %time)) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair string timestamp) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 3;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.notifications = self.data.notifications</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair (string %message) (timestamp %time)) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 3;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;PAIR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (list operation) (pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))))</span><br>&nbsp;&nbsp;};</div></div></div></div></div><div class="tabcontent" style="display: none;"><div><h2>Initial Storage</h2><div><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="storageCodeJson0_1" class="michelson white-space-pre"><div class="white-space-pre">{<br>  "prim": "Pair",<br>  "args": [<br>    { "prim": "Pair", "args": [ { "string": "KT1..." }, { "prim": "Pair", "args": [ [], { "int": "100000" } ] } ] },<br>    { "prim": "Pair", "args": [ [], { "prim": "Pair", "args": [ { "int": "0" }, { "int": "0" } ] } ] }<br>  ]<br>}</div></div></div></div></div><div class="tabcontent" style="display: none;"><div><h2>JSON Representation</h2><div><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="contractCodeJson0_1" class="michelson white-space-pre"><div class="white-space-pre">[<br>  {<br>    "prim": "storage",<br>    "args": [<br>      {<br>        "prim": "pair",<br>        "args": [<br>          {<br>            "prim": "pair",<br>            "args": [<br>              { "prim": "address", "annots": [ "%admin" ] },<br>              {<br>                "prim": "pair",<br>                "args": [<br>                  { "prim": "big_map", "args": [ { "prim": "address" }, { "prim": "mutez" } ], "annots": [ "%donations" ] }, { "prim": "mutez", "annots": [ "%fundraising_goal" ] }<br>                ]<br>              }<br>            ]<br>          },<br>          {<br>            "prim": "pair",<br>            "args": [<br>              {<br>                "prim": "big_map",<br>                "args": [ { "prim": "address" }, { "prim": "pair", "args": [ { "prim": "string", "annots": [ "%message" ] }, { "prim": "timestamp", "annots": [ "%time" ] } ] } ],<br>                "annots": [ "%notifications" ]<br>              },<br>              { "prim": "pair", "args": [ { "prim": "nat", "annots": [ "%progress" ] }, { "prim": "mutez", "annots": [ "%totalDonations" ] } ] }<br>            ]<br>          }<br>        ]<br>      }<br>    ]<br>  },<br>  { "prim": "parameter", "args": [ { "prim": "or", "args": [ { "prim": "unit", "annots": [ "%donate" ] }, { "prim": "unit", "annots": [ "%withdraw" ] } ] } ] },<br>  {<br>    "prim": "code",<br>    "args": [<br>      [<br>        { "prim": "UNPAIR" },<br>        {<br>          "prim": "IF_LEFT",<br>          "args": [<br>            [<br>              { "prim": "DROP" },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "1" } ] },<br>              { "prim": "PUSH", "args": [ { "prim": "nat" }, { "int": "0" } ] },<br>              { "prim": "MUL" },<br>              { "prim": "AMOUNT" },<br>              { "prim": "COMPARE" },<br>              { "prim": "GT" },<br>              {<br>                "prim": "IF",<br>                "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "Donation amount must be greater than 0" } ] }, { "prim": "FAILWITH" } ] ]<br>              },<br>              { "prim": "NIL", "args": [ { "prim": "operation" } ] },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "CAR" },<br>              { "prim": "CAR" },<br>              { "prim": "CONTRACT", "args": [ { "prim": "unit" } ] },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "26" } ] }, { "prim": "FAILWITH" } ], [] ] },<br>              { "prim": "AMOUNT" },<br>              { "prim": "UNIT" },<br>              { "prim": "TRANSFER_TOKENS" },<br>              { "prim": "CONS" },<br>              { "prim": "SWAP" },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "AMOUNT" },<br>              { "prim": "ADD" },<br>              { "prim": "UPDATE", "args": [ { "int": "6" } ] },<br>              { "prim": "UNPAIR" },<br>              { "prim": "UNPAIR" },<br>              { "prim": "SWAP" },<br>              { "prim": "UNPAIR" },<br>              { "prim": "AMOUNT" },<br>              { "prim": "SOME" },<br>              { "prim": "SENDER" },<br>              { "prim": "UPDATE" },<br>              { "prim": "PAIR" },<br>              { "prim": "SWAP" },<br>              { "prim": "PAIR" },<br>              { "prim": "PAIR" },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "3" } ] },<br>              {<br>                "prim": "PUSH",<br>                "args": [<br>                  { "prim": "option", "args": [ { "prim": "pair", "args": [ { "prim": "string" }, { "prim": "timestamp" } ] } ] },<br>                  { "prim": "Some", "args": [ { "prim": "Pair", "args": [ { "string": "Thank you for your donation!" }, { "string": "2023-11-24T07:18:37Z" } ] } ] }<br>                ]<br>              },<br>              { "prim": "SENDER" },<br>              { "prim": "UPDATE" },<br>              { "prim": "UPDATE", "args": [ { "int": "3" } ] },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "3" } ] },<br>              { "prim": "UPDATE", "args": [ { "int": "3" } ] },<br>              { "prim": "SWAP" },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "CAR" },<br>              { "prim": "GET", "args": [ { "int": "4" } ] },<br>              { "prim": "DUP", "args": [ { "int": "3" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "COMPARE" },<br>              { "prim": "LE" },<br>              { "prim": "IF", "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "Fundraising goal achieved." } ] }, { "prim": "FAILWITH" } ] ] },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "1" } ] },<br>              { "prim": "DUP", "args": [ { "int": "3" } ] },<br>              { "prim": "CAR" },<br>              { "prim": "GET", "args": [ { "int": "4" } ] },<br>              { "prim": "EDIV" },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "UNIT" }, { "prim": "FAILWITH" } ], [] ] },<br>              { "prim": "CAR" },<br>              { "prim": "PUSH", "args": [ { "prim": "nat" }, { "int": "100" } ] },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "1" } ] },<br>              { "prim": "DUP", "args": [ { "int": "5" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "EDIV" },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "UNIT" }, { "prim": "FAILWITH" } ], [] ] },<br>              { "prim": "CAR" },<br>              { "prim": "MUL" },<br>              { "prim": "EDIV" },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "21" } ] }, { "prim": "FAILWITH" } ], [ { "prim": "CAR" } ] ] },<br>              { "prim": "DIG", "args": [ { "int": "2" } ] },<br>              { "prim": "SWAP" },<br>              { "prim": "UPDATE", "args": [ { "int": "5" } ] },<br>              { "prim": "SWAP" }<br>            ],<br>            [<br>              { "prim": "DROP" },<br>              { "prim": "DUP" },<br>              { "prim": "CAR" },<br>              { "prim": "CAR" },<br>              { "prim": "SENDER" },<br>              { "prim": "COMPARE" },<br>              { "prim": "EQ" },<br>              { "prim": "IF", "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "Only the admin can withdraw funds" } ] }, { "prim": "FAILWITH" } ] ] },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "0" } ] },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "COMPARE" },<br>              { "prim": "GT" },<br>              { "prim": "IF", "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "No funds available for withdrawal" } ] }, { "prim": "FAILWITH" } ] ] },<br>              { "prim": "BALANCE" },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "COMPARE" },<br>              { "prim": "GE" },<br>              { "prim": "IF", "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "Insufficient contract balance" } ] }, { "prim": "FAILWITH" } ] ] },<br>              { "prim": "NIL", "args": [ { "prim": "operation" } ] },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "CAR" },<br>              { "prim": "CAR" },<br>              { "prim": "CONTRACT", "args": [ { "prim": "unit" } ] },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "39" } ] }, { "prim": "FAILWITH" } ], [] ] },<br>              { "prim": "DUP", "args": [ { "int": "3" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "UNIT" },<br>              { "prim": "TRANSFER_TOKENS" },<br>              { "prim": "CONS" },<br>              { "prim": "SWAP" },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "0" } ] },<br>              { "prim": "UPDATE", "args": [ { "int": "6" } ] },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "3" } ] },<br>              {<br>                "prim": "PUSH",<br>                "args": [<br>                  { "prim": "option", "args": [ { "prim": "pair", "args": [ { "prim": "string" }, { "prim": "timestamp" } ] } ] },<br>                  { "prim": "Some", "args": [ { "prim": "Pair", "args": [ { "string": "Funds successfully withdrawn!" }, { "string": "2023-11-24T07:18:37Z" } ] } ] }<br>                ]<br>              },<br>              { "prim": "SENDER" },<br>              { "prim": "UPDATE" },<br>              { "prim": "UPDATE", "args": [ { "int": "3" } ] },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "3" } ] },<br>              { "prim": "UPDATE", "args": [ { "int": "3" } ] },<br>              { "prim": "SWAP" }<br>            ]<br>          ]<br>        },<br>        { "prim": "PAIR" }<br>      ]<br>    ]<br>  }<br>]</div></div></div></div></div></div></div><div class="tabcontent" style="display: none;"></div></div>
+<span id="label2"></span>
+<h1>Test Donation</h1>
+
+<div class="tabs"><div class="tab"><span class="title">Transaction</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">Summary</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Michelson</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 2);">X</button></div><div class="tabcontent" style="display: block;"><div class="execMessage execMessageOK"><h3>Transaction [OK] by [<span class="address">tz1...</span>] at time [timestamp(0)] to <span class="address">KT1TezoooozzSmartPyzzSTATiCzzzwwBFA1</span></h3><div class="subtype"><select class="selection"><option value="donate">Donate</option></select></div><h3>Balance: 0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></h3><h3>Operations:</h3><div class="operation">Transfer <span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span> to sp.contract(sp.TUnit, <span class="address">KT1...</span>).open_some()<br></div><h3>Storage:</h3><div class="subtype"><div id="storageDivInternal"><table class="recordList"><tbody><tr><td class="dataColumn">Admin</td>
+<td class="dataColumn">Donations</td>
+<td class="dataColumn">Fundraising_goal</td>
+<td class="dataColumn">Notifications</td>
+<td class="dataColumn">Progress</td>
+<td class="dataColumn">TotalDonations</td></tr><tr><td class="data"><span class="address">KT1...</span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Value</td></tr><tr><td class="data"><span class="address">tz1...</span></td><td class="data"><span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></td><td class="data"><span class="token">0.100000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Message</td>
+<td class="dataColumn">Time</td></tr><tr><td class="data"><span class="address">tz1...</span></td><td class="data">'Thank you for your donation!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr></tbody></table></td><td class="data"><input type="text" value="5" readonly=""></td><td class="data"><span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></div></div></div>(<button class="text-button" onclick="showLine(60)">line 60</button>)</div><div class="tabcontent" style="display: none;"><div class="tabs"><div class="tab"><span class="title">Generated Michelson</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">Parameter Michelson</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Parameter JSON</button></div><div class="tabcontent" style="display: block;"><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="paramsCodetransaction_params" class="michelson white-space-pre-wrap">(Left Unit)</div></div><div class="tabcontent" style="display: none;"><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="paramsCodeJsontransaction_params_json" class="michelson white-space-pre"><div class="white-space-pre">{ "prim": "Left", "args": [ { "prim": "Unit" } ] }</div></div></div></div></div><div class="tabcontent" style="display: none;"></div></div>
+<div class="tabs"><div class="tab"><span class="title">Transaction</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">Summary</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Michelson</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 2);">X</button></div><div class="tabcontent" style="display: block;"><div class="execMessage execMessageOK"><h3>Transaction [OK] by [<span class="address">tz2...</span>] at time [timestamp(0)] to <span class="address">KT1TezoooozzSmartPyzzSTATiCzzzwwBFA1</span></h3><div class="subtype"><select class="selection"><option value="donate">Donate</option></select></div><h3>Balance: 0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></h3><h3>Operations:</h3><div class="operation">Transfer <span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span> to sp.contract(sp.TUnit, <span class="address">KT1...</span>).open_some()<br></div><h3>Storage:</h3><div class="subtype"><div id="storageDivInternal"><table class="recordList"><tbody><tr><td class="dataColumn">Admin</td>
+<td class="dataColumn">Donations</td>
+<td class="dataColumn">Fundraising_goal</td>
+<td class="dataColumn">Notifications</td>
+<td class="dataColumn">Progress</td>
+<td class="dataColumn">TotalDonations</td></tr><tr><td class="data"><span class="address">KT1...</span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Value</td></tr><tr><td class="data"><span class="address">tz1...</span></td><td class="data"><span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr>
+<tr><td class="data"><span class="address">tz2...</span></td><td class="data"><span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></td><td class="data"><span class="token">0.100000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Message</td>
+<td class="dataColumn">Time</td></tr><tr><td class="data"><span class="address">tz1...</span></td><td class="data">'Thank you for your donation!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr>
+<tr><td class="data"><span class="address">tz2...</span></td><td class="data">'Thank you for your donation!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr></tbody></table></td><td class="data"><input type="text" value="10" readonly=""></td><td class="data"><span class="token">0.010000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></div></div></div>(<button class="text-button" onclick="showLine(61)">line 61</button>)</div><div class="tabcontent" style="display: none;"><div class="tabs"><div class="tab"><span class="title">Generated Michelson</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">Parameter Michelson</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Parameter JSON</button></div><div class="tabcontent" style="display: block;"><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="paramsCodetransaction_params" class="michelson white-space-pre-wrap">(Left Unit)</div></div><div class="tabcontent" style="display: none;"><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="paramsCodeJsontransaction_params_json" class="michelson white-space-pre"><div class="white-space-pre">{ "prim": "Left", "args": [ { "prim": "Unit" } ] }</div></div></div></div></div><div class="tabcontent" style="display: none;"></div></div>
+<div class="tabs"><div class="tab"><span class="title">Transaction</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">Summary</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Michelson</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 2);">X</button></div><div class="tabcontent" style="display: block;"><div class="execMessage execMessageOK"><h3>Transaction [OK] by [<span class="address">tz3...</span>] at time [timestamp(0)] to <span class="address">KT1TezoooozzSmartPyzzSTATiCzzzwwBFA1</span></h3><div class="subtype"><select class="selection"><option value="donate">Donate</option></select></div><h3>Balance: 0.089000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></h3><h3>Operations:</h3><div class="operation">Transfer <span class="token">0.089000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span> to sp.contract(sp.TUnit, <span class="address">KT1...</span>).open_some()<br></div><h3>Storage:</h3><div class="subtype"><div id="storageDivInternal"><table class="recordList"><tbody><tr><td class="dataColumn">Admin</td>
+<td class="dataColumn">Donations</td>
+<td class="dataColumn">Fundraising_goal</td>
+<td class="dataColumn">Notifications</td>
+<td class="dataColumn">Progress</td>
+<td class="dataColumn">TotalDonations</td></tr><tr><td class="data"><span class="address">KT1...</span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Value</td></tr><tr><td class="data"><span class="address">tz1...</span></td><td class="data"><span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr>
+<tr><td class="data"><span class="address">tz2...</span></td><td class="data"><span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr>
+<tr><td class="data"><span class="address">tz3...</span></td><td class="data"><span class="token">0.089000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></td><td class="data"><span class="token">0.100000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Message</td>
+<td class="dataColumn">Time</td></tr><tr><td class="data"><span class="address">tz1...</span></td><td class="data">'Thank you for your donation!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr>
+<tr><td class="data"><span class="address">tz2...</span></td><td class="data">'Thank you for your donation!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr>
+<tr><td class="data"><span class="address">tz3...</span></td><td class="data">'Thank you for your donation!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr></tbody></table></td><td class="data"><input type="text" value="99" readonly=""></td><td class="data"><span class="token">0.099000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></div></div></div>(<button class="text-button" onclick="showLine(62)">line 62</button>)</div><div class="tabcontent" style="display: none;"><div class="tabs"><div class="tab"><span class="title">Generated Michelson</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">Parameter Michelson</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Parameter JSON</button></div><div class="tabcontent" style="display: block;"><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="paramsCodetransaction_params" class="michelson white-space-pre-wrap">(Left Unit)</div></div><div class="tabcontent" style="display: none;"><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="paramsCodeJsontransaction_params_json" class="michelson white-space-pre"><div class="white-space-pre">{ "prim": "Left", "args": [ { "prim": "Unit" } ] }</div></div></div></div></div><div class="tabcontent" style="display: none;"></div></div>
+<span id="label6"></span>
+<h1>Test Withdrawal</h1>
+
+<div style="border: double; padding: 5px; margin-bottom: 10px">Reverted transaction<br><div class="tabs"><div class="tab"><span class="title">Transaction</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">Summary</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Michelson</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 2);">X</button></div><div class="tabcontent" style="display: block;"><div class="execMessage execMessageOK"><h3>Transaction [OK] by [<span class="address">KT1...</span>] at time [timestamp(0)] to <span class="address">KT1TezoooozzSmartPyzzSTATiCzzzwwBFA1</span></h3><div class="subtype"><select class="selection"><option value="withdraw">Withdraw</option></select></div><h3>Balance: 0.000000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></h3><h3>Operations:</h3><div class="operation">Transfer <span class="token">0.099000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span> to sp.contract(sp.TUnit, <span class="address">KT1...</span>).open_some()<br></div><h3>Storage:</h3><div class="subtype"><div id="storageDivInternal"><table class="recordList"><tbody><tr><td class="dataColumn">Admin</td>
+<td class="dataColumn">Donations</td>
+<td class="dataColumn">Fundraising_goal</td>
+<td class="dataColumn">Notifications</td>
+<td class="dataColumn">Progress</td>
+<td class="dataColumn">TotalDonations</td></tr><tr><td class="data"><span class="address">KT1...</span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Value</td></tr><tr><td class="data"><span class="address">tz1...</span></td><td class="data"><span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr>
+<tr><td class="data"><span class="address">tz2...</span></td><td class="data"><span class="token">0.005000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr>
+<tr><td class="data"><span class="address">tz3...</span></td><td class="data"><span class="token">0.089000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></td><td class="data"><span class="token">0.100000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Message</td>
+<td class="dataColumn">Time</td></tr><tr><td class="data"><span class="address">tz1...</span></td><td class="data">'Thank you for your donation!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr>
+<tr><td class="data"><span class="address">tz2...</span></td><td class="data">'Thank you for your donation!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr>
+<tr><td class="data"><span class="address">tz3...</span></td><td class="data">'Thank you for your donation!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr>
+<tr><td class="data"><span class="address">KT1...</span></td><td class="data">'Funds successfully withdrawn!'</td><td class="data"><span class="timestamp">timestamp(1700810317)</span></td></tr></tbody></table></td><td class="data"><input type="text" value="99" readonly=""></td><td class="data"><span class="token">0.000000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></div></div></div>(<button class="text-button" onclick="showLine(67)">line 67</button>)</div><div class="tabcontent" style="display: none;"><div class="tabs"><div class="tab"><span class="title">Generated Michelson</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">Parameter Michelson</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Parameter JSON</button></div><div class="tabcontent" style="display: block;"><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="paramsCodetransaction_params" class="michelson white-space-pre-wrap">(Right Unit)</div></div><div class="tabcontent" style="display: none;"><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="paramsCodeJsontransaction_params_json" class="michelson white-space-pre"><div class="white-space-pre">{ "prim": "Right", "args": [ { "prim": "Unit" } ] }</div></div></div></div></div><div class="tabcontent" style="display: none;"></div></div></div>
+<span id="label8"></span>
+<h1>Contract State After Tests</h1>
+
+<div class="tabs"><div class="tab"><span class="title">Contract</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTab(event, 0);">SmartPy</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 1);">Types</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 2);">Deploy Michelson Contract</button><button name="button_generatedMichelson" class="tablinks" onclick="openTab(event, 3);">×</button></div><div class="tabcontent" style="display: block;"><div class="contract"><h3>New contract: <span class="address">KT1Tezooo1zzSmartPyzzSTATiCzzzyfC8eF</span></h3><h3>Balance: 0.000000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></h3>
+<h3>Storage:</h3>
+<div id="storageDivInternal"><table class="recordList"><tbody><tr><td class="dataColumn">Admin</td>
+<td class="dataColumn">Donations</td>
+<td class="dataColumn">Fundraising_goal</td>
+<td class="dataColumn">Notifications</td>
+<td class="dataColumn">Progress</td>
+<td class="dataColumn">TotalDonations</td></tr><tr><td class="data"><span class="address">KT1...</span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Value</td></tr></tbody></table></td><td class="data"><span class="token">0.100000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td><td class="data"><table class="recordList"><tbody><tr><td class="dataColumn">Key</td>
+<td class="dataColumn">Message</td>
+<td class="dataColumn">Time</td></tr></tbody></table></td><td class="data"><input type="text" value="0" readonly=""></td><td class="data"><span class="token">0.000000<img height="20" width="20" src="static/img/tezos.svg" alt="tz"></span></td></tr></tbody></table></div>
+<h3>Code:</h3>
+import smartpy as sp
+<br>
+<br>class Contract(sp.Contract):
+<br><div class="on"><span class="keyword">def</span> __init__(self)<span class="keyword">:</span><div class="indent5">&nbsp;&nbsp;self.init_type(sp.TRecord(admin = sp.TAddress, donations = sp.TBigMap(sp.TAddress, sp.TMutez), fundraising_goal = sp.TMutez, notifications = sp.TBigMap(sp.TAddress, sp.TRecord(message = sp.TString, time = sp.TTimestamp).layout(("message", "time"))), progress = sp.TNat, totalDonations = sp.TMutez).layout((("admin", ("donations", "fundraising_goal")), ("notifications", ("progress", "totalDonations")))))</div>
+<div class="indent5">&nbsp;&nbsp;self.init(<span class="variable">admin</span> = sp.address('KT1...'),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">donations</span> = {},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">fundraising_goal</span> = sp.mutez(100000),<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">notifications</span> = {},<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">progress</span> = 0,<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="variable">totalDonations</span> = sp.tez(0))</div></div><br>
+<br><div class="on">
+  @sp.entrypoint
+<br><span class="keyword">def</span> donate(<span class="self">self</span>)<span class="keyword">:</span><br><div class="indent5">&nbsp;&nbsp;sp.verify(sp.amount &gt; sp.mul(sp.set_type_expr(<span class="constant">0</span>, sp.TNat), <span class="constant">sp.mutez(1)</span>), <span class="constant">'Donation amount must be greater than 0'</span>)
+<br>&nbsp;&nbsp;sp.send(<span class="self">self</span>.data.admin, sp.amount)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.totalDonations += sp.amount
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.donations[sp.sender] = sp.amount
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.notifications[sp.sender] = sp.record(message = <span class="constant">'Thank you for your donation!'</span>, time = <span class="constant">sp.timestamp(1700810318)</span>)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.notifications = <span class="self">self</span>.data.notifications
+<br>&nbsp;&nbsp;sp.verify(<span class="self">self</span>.data.totalDonations &lt;= <span class="self">self</span>.data.fundraising_goal, <span class="constant">'Fundraising goal achieved.'</span>)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.progress = (sp.fst(sp.ediv(<span class="self">self</span>.data.totalDonations, <span class="constant">sp.mutez(1)</span>).open_some(message = <span class="constant">sp.unit</span>)) * <span class="constant">100</span>) // sp.fst(sp.ediv(<span class="self">self</span>.data.fundraising_goal, <span class="constant">sp.mutez(1)</span>).open_some(message = <span class="constant">sp.unit</span>))</div></div>
+<br><div class="on">
+  @sp.entrypoint
+<br><span class="keyword">def</span> withdraw(<span class="self">self</span>)<span class="keyword">:</span><br><div class="indent5">&nbsp;&nbsp;sp.verify(sp.sender == <span class="self">self</span>.data.admin, <span class="constant">'Only the admin can withdraw funds'</span>)
+<br>&nbsp;&nbsp;sp.verify(<span class="self">self</span>.data.totalDonations &gt; <span class="constant">sp.tez(0)</span>, <span class="constant">'No funds available for withdrawal'</span>)
+<br>&nbsp;&nbsp;sp.verify(<span class="self">self</span>.data.totalDonations &gt;= sp.balance, <span class="constant">'Insufficient contract balance'</span>)
+<br>&nbsp;&nbsp;sp.send(<span class="self">self</span>.data.admin, <span class="self">self</span>.data.totalDonations)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.totalDonations = <span class="constant">sp.tez(0)</span>
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.notifications[sp.sender] = sp.record(message = <span class="constant">'Funds successfully withdrawn!'</span>, time = <span class="constant">sp.timestamp(1700810318)</span>)
+<br>&nbsp;&nbsp;<span class="self">self</span>.data.notifications = <span class="self">self</span>.data.notifications</div></div>
+<br>
+<br>sp.add_compilation_target("test", Contract())</div><button class="text-button" onclick="showLine(73)">(line 73)</button></div><div class="tabcontent" style="display: none;"><div class="contract"><h3>Storage:</h3><span class="type"><span class="record">{</span><br>&nbsp;&nbsp;<span class="record">admin</span>: sp.TAddress;<br>&nbsp;&nbsp;<span class="record">donations</span>: sp.TBigMap(sp.TAddress, sp.TMutez);<br>&nbsp;&nbsp;<span class="record">fundraising_goal</span>: sp.TMutez;<br>&nbsp;&nbsp;<span class="record">notifications</span>: sp.TBigMap(sp.TAddress, &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="record">{</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="record">message</span>: sp.TString;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="record">time</span>: sp.TTimestamp;<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="record">}.layout(("message", "time"))</span>);<br>&nbsp;&nbsp;<span class="record">progress</span>: sp.TNat;<br>&nbsp;&nbsp;<span class="record">totalDonations</span>: sp.TMutez;<br><span class="record">}.layout((("admin", ("donations", "fundraising_goal")), ("notifications", ("progress", "totalDonations"))))</span></span><p></p><h3>Entry points:</h3><span class="type"><span class="variant">| donate</span><br><span class="variant">| withdraw</span></span></div></div><div class="tabcontent" style="display: none;"><button class="centertextbutton extramarginbottom" onclick="smartpyContext.gotoOrigination(contractSizes1_9.innerHTML, storageCode1_9.innerText, contractCode1_9.innerText, storageCodeJson1_9.innerText, contractCodeJson1_9.innerText,storageCode1_9.innerHTML, contractCode1_9.innerHTML, storageCodeJson1_9.innerHTML, contractCodeJson1_9.innerHTML)">Deploy Michelson Contract</button><div class="tabs"><div class="tab"><span class="title">Generated Michelson:</span><button name="button_generatedMichelson" class="tablinks active" onclick="openTabLazy(event, 0, 0);">Sizes</button><button name="button_generatedMichelson" class="tablinks" onclick="openTabLazy(event, 1, 0);">Storage</button><button name="button_generatedMichelson" class="tablinks" onclick="openTabLazy(event, 2, 0);">Code</button><button name="button_generatedMichelson" class="tablinks" onclick="openTabLazy(event, 3, 0);">Storage JSON</button><button name="button_generatedMichelson" class="tablinks" onclick="openTabLazy(event, 4, 0);">Code JSON</button></div><div class="tabcontent" style="display: block;"><div><h2>Sizes</h2><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="contractSizes1_9" class="michelson white-space-pre"><table><tbody><tr><td class="pad10"><span class="item">Storage: </span></td><td class="pad10"><div class="progress" style="height: 20px; width: 150px;"><div class="progress-bar" style="width:0;" role="progressbar" 10'=""></div></div></td><td class="pad10, code_right">39 Bytes</td></tr><tr><td class="pad10"><span class="item">Big map originations (2): </span></td><td class="pad10"><div class="progress" style="height: 20px; width: 150px;"><div class="progress-bar" style="width:0;" role="progressbar" 10'=""></div></div></td><td class="pad10, code_right">64 Bytes</td></tr><tr><td class="pad10"><span class="item">Code: </span></td><td class="pad10"><div class="progress" style="height: 20px; width: 150px;"><div class="progress-bar" style="width:6;" role="progressbar" 10'=""></div></div></td><td class="pad10, code_right">1034 Bytes</td></tr><tr><td class="pad10"><span class="item">Combined: </span></td><td class="pad10"><div class="progress" style="height: 20px; width: 150px;"><div class="progress-bar" style="width:6;" role="progressbar" 10'=""></div></div></td><td class="pad10, code_right">1137 Bytes</td></tr></tbody></table></div></div></div><div class="tabcontent" style="display: none;"><div><h2>Initial Storage</h2><div><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="storageCode1_9" class="michelson white-space-pre-wrap">(Pair (Pair "KT1..." (Pair {} 100000)) (Pair {} (Pair 0 0)))</div></div></div></div><div class="tabcontent" style="display: none;"><div><h2>Michelson Code</h2><div><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="contractCode1_9" class="michelson white-space-pre">parameter (or (unit %donate) (unit %withdraw));<br>storage &nbsp;&nbsp;(pair (pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal))) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))));<br><div class="michelsonLine">code<br>&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;UNPAIR;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@parameter : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;IF_LEFT<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DROP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># == donate ==</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(sp.amount &gt; sp.mul(sp.set_type_expr(0, sp.TNat), sp.mutez(1)), 'Donation amount must be greater than 0')</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 1; <span class="comment">#</span> <span class="stack">mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH nat 0; <span class="comment">#</span> <span class="stack">nat : mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MUL;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AMOUNT;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@amount : mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "Donation amount must be greater than 0"; <span class="comment">#</span> <span class="stack">string : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.send(self.data.admin, sp.amount)</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NIL operation; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal)) : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTRACT unit; <span class="comment">#</span> <span class="stack">option (contract unit) : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH int 26; <span class="comment">#</span> <span class="stack">int : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}; <span class="comment">#</span> <span class="stack">@some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AMOUNT;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@amount : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNIT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">unit : @amount : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRANSFER_TOKENS; <span class="comment">#</span> <span class="stack">operation : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONS;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.totalDonations += sp.amount</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AMOUNT;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@amount : mutez : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;ADD;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 6;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.donations[sp.sender] = sp.amount</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNPAIR;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal)) : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNPAIR;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : pair (big_map %donations address mutez) (mutez %fundraising_goal) : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (big_map %donations address mutez) (mutez %fundraising_goal) : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNPAIR;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;AMOUNT;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@amount : big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SOME;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">option mutez : big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDER;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@sender : option mutez : big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address mutez : mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PAIR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (big_map address mutez) mutez : address : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : pair (big_map address mutez) mutez : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PAIR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair address (pair (big_map address mutez) mutez) : pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PAIR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.notifications[sp.sender] = sp.record(message = 'Thank you for your donation!', time = sp.timestamp(1700810318))</span> <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair (string %message) (timestamp %time)) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH (option (pair string timestamp)) (Some (Pair "Thank you for your donation!" "2023-11-24T07:18:38Z")); <span class="comment">#</span> <span class="stack">option (pair string timestamp) : big_map address (pair (string %message) (timestamp %time)) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDER;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@sender : option (pair string timestamp) : big_map address (pair (string %message) (timestamp %time)) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair string timestamp) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 3;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.notifications = self.data.notifications</span> <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair (string %message) (timestamp %time)) : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 3;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(self.data.totalDonations &lt;= self.data.fundraising_goal, 'Fundraising goal achieved.')</span> <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair address (pair (big_map address mutez) mutez) : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;LE;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "Fundraising goal achieved."; <span class="comment">#</span> <span class="stack">string : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.progress = (sp.fst(sp.ediv(self.data.totalDonations, sp.mutez(1)).open_some(message = sp.unit)) * 100) // sp.fst(sp.ediv(self.data.fundraising_goal, sp.mutez(1)).open_some(message = sp.unit))</span> <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 1; <span class="comment">#</span> <span class="stack">mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair address (pair (big_map address mutez) mutez) : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 4;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : mutez : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">option (pair nat mutez) : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNIT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">unit : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}; <span class="comment">#</span> <span class="stack">@some : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH nat 100; <span class="comment">#</span> <span class="stack">nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 1; <span class="comment">#</span> <span class="stack">mutez : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 5;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : mutez : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : mutez : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">option (pair nat mutez) : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNIT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">unit : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}; <span class="comment">#</span> <span class="stack">@some : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;MUL;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EDIV;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">option (pair nat nat) : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH int 21; <span class="comment">#</span> <span class="stack">int : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">nat : list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DIG 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : nat : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">nat : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 5;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))) : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DROP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># == withdraw ==</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(sp.sender == self.data.admin, 'Only the admin can withdraw funds')</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal)) : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDER;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@sender : address : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;EQ;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "Only the admin can withdraw funds"; <span class="comment">#</span> <span class="stack">string : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(self.data.totalDonations &gt; sp.tez(0), 'No funds available for withdrawal')</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 0; <span class="comment">#</span> <span class="stack">mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : mutez : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "No funds available for withdrawal"; <span class="comment">#</span> <span class="stack">string : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.verify(self.data.totalDonations &gt;= sp.balance, 'Insufficient contract balance')</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;BALANCE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@balance : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @balance : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @balance : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;COMPARE;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">int : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GE;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">bool : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH string "Insufficient contract balance"; <span class="comment">#</span> <span class="stack">string : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># sp.send(self.data.admin, self.data.totalDonations)</span> <span class="comment">#</span> <span class="stack">@storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;NIL operation; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 2;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (address %admin) (pair (big_map %donations address mutez) (mutez %fundraising_goal)) : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CAR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">address : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONTRACT unit; <span class="comment">#</span> <span class="stack">option (contract unit) : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;IF_NONE<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH int 39; <span class="comment">#</span> <span class="stack">int : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;FAILWITH;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">FAILED</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}<br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{}; <span class="comment">#</span> <span class="stack">@some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 6;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">mutez : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UNIT;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">unit : mutez : @some : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;TRANSFER_TOKENS; <span class="comment">#</span> <span class="stack">operation : list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;CONS;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.totalDonations = sp.tez(0)</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH mutez 0; <span class="comment">#</span> <span class="stack">mutez : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 6;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.notifications[sp.sender] = sp.record(message = 'Funds successfully withdrawn!', time = sp.timestamp(1700810318))</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair (string %message) (timestamp %time)) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;PUSH (option (pair string timestamp)) (Some (Pair "Funds successfully withdrawn!" "2023-11-24T07:18:38Z")); <span class="comment">#</span> <span class="stack">option (pair string timestamp) : big_map address (pair (string %message) (timestamp %time)) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SENDER;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@sender : option (pair string timestamp) : big_map address (pair (string %message) (timestamp %time)) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair string timestamp) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 3;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="comment"># self.data.notifications = self.data.notifications</span> <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;DUP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;GET 3;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">big_map address (pair (string %message) (timestamp %time)) : @storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;UPDATE 3;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">@storage : list operation</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;SWAP;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">list operation : @storage</span><br>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;}; <span class="comment">#</span> <span class="stack">list operation : pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations)))</span><br>&nbsp;&nbsp;&nbsp;&nbsp;PAIR;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; <span class="comment">#</span> <span class="stack">pair (list operation) (pair (pair address (pair (big_map address mutez) mutez)) (pair (big_map %notifications address (pair (string %message) (timestamp %time))) (pair (nat %progress) (mutez %totalDonations))))</span><br>&nbsp;&nbsp;};</div></div></div></div></div><div class="tabcontent" style="display: none;"><div><h2>Initial Storage</h2><div><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="storageCodeJson1_9" class="michelson white-space-pre"><div class="white-space-pre">{<br>  "prim": "Pair",<br>  "args": [<br>    { "prim": "Pair", "args": [ { "string": "KT1..." }, { "prim": "Pair", "args": [ [], { "int": "100000" } ] } ] },<br>    { "prim": "Pair", "args": [ [], { "prim": "Pair", "args": [ { "int": "0" }, { "int": "0" } ] } ] }<br>  ]<br>}</div></div></div></div></div><div class="tabcontent" style="display: none;"><div><h2>JSON Representation</h2><div><div class="menu"> <button onclick="copyMichelson(this);">Copy</button></div><div id="contractCodeJson1_9" class="michelson white-space-pre"><div class="white-space-pre">[<br>  {<br>    "prim": "storage",<br>    "args": [<br>      {<br>        "prim": "pair",<br>        "args": [<br>          {<br>            "prim": "pair",<br>            "args": [<br>              { "prim": "address", "annots": [ "%admin" ] },<br>              {<br>                "prim": "pair",<br>                "args": [<br>                  { "prim": "big_map", "args": [ { "prim": "address" }, { "prim": "mutez" } ], "annots": [ "%donations" ] }, { "prim": "mutez", "annots": [ "%fundraising_goal" ] }<br>                ]<br>              }<br>            ]<br>          },<br>          {<br>            "prim": "pair",<br>            "args": [<br>              {<br>                "prim": "big_map",<br>                "args": [ { "prim": "address" }, { "prim": "pair", "args": [ { "prim": "string", "annots": [ "%message" ] }, { "prim": "timestamp", "annots": [ "%time" ] } ] } ],<br>                "annots": [ "%notifications" ]<br>              },<br>              { "prim": "pair", "args": [ { "prim": "nat", "annots": [ "%progress" ] }, { "prim": "mutez", "annots": [ "%totalDonations" ] } ] }<br>            ]<br>          }<br>        ]<br>      }<br>    ]<br>  },<br>  { "prim": "parameter", "args": [ { "prim": "or", "args": [ { "prim": "unit", "annots": [ "%donate" ] }, { "prim": "unit", "annots": [ "%withdraw" ] } ] } ] },<br>  {<br>    "prim": "code",<br>    "args": [<br>      [<br>        { "prim": "UNPAIR" },<br>        {<br>          "prim": "IF_LEFT",<br>          "args": [<br>            [<br>              { "prim": "DROP" },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "1" } ] },<br>              { "prim": "PUSH", "args": [ { "prim": "nat" }, { "int": "0" } ] },<br>              { "prim": "MUL" },<br>              { "prim": "AMOUNT" },<br>              { "prim": "COMPARE" },<br>              { "prim": "GT" },<br>              {<br>                "prim": "IF",<br>                "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "Donation amount must be greater than 0" } ] }, { "prim": "FAILWITH" } ] ]<br>              },<br>              { "prim": "NIL", "args": [ { "prim": "operation" } ] },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "CAR" },<br>              { "prim": "CAR" },<br>              { "prim": "CONTRACT", "args": [ { "prim": "unit" } ] },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "26" } ] }, { "prim": "FAILWITH" } ], [] ] },<br>              { "prim": "AMOUNT" },<br>              { "prim": "UNIT" },<br>              { "prim": "TRANSFER_TOKENS" },<br>              { "prim": "CONS" },<br>              { "prim": "SWAP" },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "AMOUNT" },<br>              { "prim": "ADD" },<br>              { "prim": "UPDATE", "args": [ { "int": "6" } ] },<br>              { "prim": "UNPAIR" },<br>              { "prim": "UNPAIR" },<br>              { "prim": "SWAP" },<br>              { "prim": "UNPAIR" },<br>              { "prim": "AMOUNT" },<br>              { "prim": "SOME" },<br>              { "prim": "SENDER" },<br>              { "prim": "UPDATE" },<br>              { "prim": "PAIR" },<br>              { "prim": "SWAP" },<br>              { "prim": "PAIR" },<br>              { "prim": "PAIR" },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "3" } ] },<br>              {<br>                "prim": "PUSH",<br>                "args": [<br>                  { "prim": "option", "args": [ { "prim": "pair", "args": [ { "prim": "string" }, { "prim": "timestamp" } ] } ] },<br>                  { "prim": "Some", "args": [ { "prim": "Pair", "args": [ { "string": "Thank you for your donation!" }, { "string": "2023-11-24T07:18:38Z" } ] } ] }<br>                ]<br>              },<br>              { "prim": "SENDER" },<br>              { "prim": "UPDATE" },<br>              { "prim": "UPDATE", "args": [ { "int": "3" } ] },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "3" } ] },<br>              { "prim": "UPDATE", "args": [ { "int": "3" } ] },<br>              { "prim": "SWAP" },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "CAR" },<br>              { "prim": "GET", "args": [ { "int": "4" } ] },<br>              { "prim": "DUP", "args": [ { "int": "3" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "COMPARE" },<br>              { "prim": "LE" },<br>              { "prim": "IF", "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "Fundraising goal achieved." } ] }, { "prim": "FAILWITH" } ] ] },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "1" } ] },<br>              { "prim": "DUP", "args": [ { "int": "3" } ] },<br>              { "prim": "CAR" },<br>              { "prim": "GET", "args": [ { "int": "4" } ] },<br>              { "prim": "EDIV" },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "UNIT" }, { "prim": "FAILWITH" } ], [] ] },<br>              { "prim": "CAR" },<br>              { "prim": "PUSH", "args": [ { "prim": "nat" }, { "int": "100" } ] },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "1" } ] },<br>              { "prim": "DUP", "args": [ { "int": "5" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "EDIV" },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "UNIT" }, { "prim": "FAILWITH" } ], [] ] },<br>              { "prim": "CAR" },<br>              { "prim": "MUL" },<br>              { "prim": "EDIV" },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "21" } ] }, { "prim": "FAILWITH" } ], [ { "prim": "CAR" } ] ] },<br>              { "prim": "DIG", "args": [ { "int": "2" } ] },<br>              { "prim": "SWAP" },<br>              { "prim": "UPDATE", "args": [ { "int": "5" } ] },<br>              { "prim": "SWAP" }<br>            ],<br>            [<br>              { "prim": "DROP" },<br>              { "prim": "DUP" },<br>              { "prim": "CAR" },<br>              { "prim": "CAR" },<br>              { "prim": "SENDER" },<br>              { "prim": "COMPARE" },<br>              { "prim": "EQ" },<br>              { "prim": "IF", "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "Only the admin can withdraw funds" } ] }, { "prim": "FAILWITH" } ] ] },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "0" } ] },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "COMPARE" },<br>              { "prim": "GT" },<br>              { "prim": "IF", "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "No funds available for withdrawal" } ] }, { "prim": "FAILWITH" } ] ] },<br>              { "prim": "BALANCE" },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "COMPARE" },<br>              { "prim": "GE" },<br>              { "prim": "IF", "args": [ [], [ { "prim": "PUSH", "args": [ { "prim": "string" }, { "string": "Insufficient contract balance" } ] }, { "prim": "FAILWITH" } ] ] },<br>              { "prim": "NIL", "args": [ { "prim": "operation" } ] },<br>              { "prim": "DUP", "args": [ { "int": "2" } ] },<br>              { "prim": "CAR" },<br>              { "prim": "CAR" },<br>              { "prim": "CONTRACT", "args": [ { "prim": "unit" } ] },<br>              { "prim": "IF_NONE", "args": [ [ { "prim": "PUSH", "args": [ { "prim": "int" }, { "int": "39" } ] }, { "prim": "FAILWITH" } ], [] ] },<br>              { "prim": "DUP", "args": [ { "int": "3" } ] },<br>              { "prim": "GET", "args": [ { "int": "6" } ] },<br>              { "prim": "UNIT" },<br>              { "prim": "TRANSFER_TOKENS" },<br>              { "prim": "CONS" },<br>              { "prim": "SWAP" },<br>              { "prim": "PUSH", "args": [ { "prim": "mutez" }, { "int": "0" } ] },<br>              { "prim": "UPDATE", "args": [ { "int": "6" } ] },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "3" } ] },<br>              {<br>                "prim": "PUSH",<br>                "args": [<br>                  { "prim": "option", "args": [ { "prim": "pair", "args": [ { "prim": "string" }, { "prim": "timestamp" } ] } ] },<br>                  { "prim": "Some", "args": [ { "prim": "Pair", "args": [ { "string": "Funds successfully withdrawn!" }, { "string": "2023-11-24T07:18:38Z" } ] } ] }<br>                ]<br>              },<br>              { "prim": "SENDER" },<br>              { "prim": "UPDATE" },<br>              { "prim": "UPDATE", "args": [ { "int": "3" } ] },<br>              { "prim": "DUP" },<br>              { "prim": "GET", "args": [ { "int": "3" } ] },<br>              { "prim": "UPDATE", "args": [ { "int": "3" } ] },<br>              { "prim": "SWAP" }<br>            ]<br>          ]<br>        },<br>        { "prim": "PAIR" }<br>      ]<br>    ]<br>  }<br>]</div></div></div></div></div></div></div><div class="tabcontent" style="display: none;"></div></div>
+</div></div></div>
+            </body>
+        </html>
